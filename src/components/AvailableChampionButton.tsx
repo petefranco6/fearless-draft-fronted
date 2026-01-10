@@ -11,10 +11,14 @@ export default function AvailableChampionButton({ champ, onSelect, isUsed }: Pro
         <button
             onClick={() => onSelect(champ.id)}
             disabled={isUsed}
-            className={`relative h-20 w-20 border border-gray-600 rounded overflow-hidden transform transition duration-150
-        ${isUsed ? "opacity-50 cursor-not-allowed" : "hover:scale-110 hover:ring-2 hover:ring-white"}`}
+            className={`flex h-28 w-20 flex-col overflow-hidden rounded border border-gray-600 text-left
+            transition duration-150
+        ${isUsed ? "cursor-not-allowed opacity-50" : "hover:scale-105 hover:ring-2 hover:ring-white"}`}
         >
-            <img src={champ.imgUrl} alt={champ.name} className="h-full w-full object-cover" />
+            <img src={champ.imgUrl} alt={champ.name} className="h-20 w-full object-cover" />
+            <span className="px-1 pt-1 text-[0.65rem] font-semibold text-white truncate">
+                {champ.name}
+            </span>
         </button>
     );
 }

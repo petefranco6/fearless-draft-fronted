@@ -1,5 +1,6 @@
 import AvailableChampionButton from "./AvailableChampionButton";
 import type { Champion } from "../utils/championService";
+import NoneChampionButton from "./NoneChampionButton.tsx";
 
 type Props = {
     champions: Champion[];
@@ -19,6 +20,7 @@ export default function AvailableChampionsGrid({ champions, draftUsedIds, onSele
         >
             <div className="grid gap-3 justify-center
                            grid-cols-[repeat(auto-fit,minmax(5rem,1fr))]">
+                <NoneChampionButton onSelect={onSelect} />
                 {champions.map((champ) => (
                     <AvailableChampionButton
                         key={champ.id}

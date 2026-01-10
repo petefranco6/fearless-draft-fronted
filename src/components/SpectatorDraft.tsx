@@ -1,61 +1,58 @@
-import type {Champion} from "../utils/championService.ts";
-import type { DraftState} from "../types/draft.ts";
-import {SpectatorTeamColumn} from "./SpectatorTeamColumn.tsx";
-import BanRow from "./BanRow.tsx";
+import type { Champion } from "../utils/championService";
+import type { DraftState } from "../types/draft";
+import { SpectatorTeamColumn } from "./SpectatorTeamColumn";
+import BanRow from "./BanRow";
+import { buildDraftSteps } from "../utils/draftOrder";
 
 interface SpectatorDraftProps {
     draft: DraftState;
     champions: Champion[];
-    lastPickedChampion: string | null;
-    BAN_SLOTS: number;
+    lastPickedChampion?: string | null;
     PICK_SLOTS: number;
+    BAN_SLOTS: number;
 }
 
-export default function SpectatorDraft({ draft, champions, lastPickedChampion, BAN_SLOTS, PICK_SLOTS }: SpectatorDraftProps) {
+export default function SpectatorDraft({
+                                           draft,
+                                           champions,
+                                           lastPickedChampion = null,
+                                           PICK_SLOTS,
+                                           BAN_SLOTS,
+                                       }: SpectatorDraftProps) {
+    // Fast lookup
+    const champMap = new Map<string, Champion>(champions.map((c) => [c.id, c]));
+    const getChamp = (id: string) => champMap.get(id);
 
-    const championMap = new Map<string, Champion>(
-        champions.map(c => [c.id, c])
-    )
+    // Previews (if spectator shows them)
+    const bluePreview = draft.previews?.BLUE ? getChamp(draft.previews.BLUE) ?? null : null;
+    const redPreview = draft.previews?.RED ? getChamp(draft.previews.RED) ?? null : null;
 
-
-    const getChamp = (id: string): Champion | undefined =>
-        championMap.get(id);
-
+    /**
+     * ✅ Correct ban splitting for spectator:
+     * - Build steps from firstPickTeam
+     * - Extract BAN steps
+     * - Map bans[banIndex] → banSteps[banIndex].turn
+     */
+    const steps = buildDraftSteps(draft.firstPickTeam);
+    const banSteps = steps.filter((s) => s.phase === "BAN");
 
     const blueBans: (Champion | null)[] = [];
     const redBans: (Champion | null)[] = [];
 
+    draft.bans.forEach((champId, banIndex) => {
+        const stepForThisBan = banSteps[banIndex];
+        const champ = getChamp(champId) ?? null;
 
-        draft.bans?.forEach((champId, index) => {
-            const champ = champions.find((c) => c.id === champId) ?? null;
-
-            if (index < 6) {
-                // Phase 1 bans: BLUE, RED, BLUE, RED, BLUE, RED
-                if (index % 2 === 0) {
-                    blueBans.push(champ);
-                } else {
-                    redBans.push(champ);
-                }
-
-            } else {
-                // Phase 2 bans: RED, BLUE, RED, BLUE
-                if ((index - 6) % 2 === 0) {
-                    redBans.push(champ);
-                } else {
-                    blueBans.push(champ);
-                }
-            }
-        });
-
+        if (!stepForThisBan) return; // safety
+        if (stepForThisBan.turn === "BLUE") blueBans.push(champ);
+        else redBans.push(champ);
+    });
 
     return (
         <div className="min-h-screen bg-neutral-900 text-white p-8">
-
             {/* HEADER */}
             <div className="text-center mb-10">
-                <h1 className="text-4xl font-extrabold tracking-wide">
-                    FEARLESS DRAFT
-                </h1>
+                <h1 className="text-4xl font-extrabold tracking-wide">FEARLESS DRAFT</h1>
                 <p className="text-neutral-400 mt-2">
                     {draft.phase === "COMPLETE"
                         ? "Draft Complete"
@@ -64,55 +61,61 @@ export default function SpectatorDraft({ draft, champions, lastPickedChampion, B
             </div>
 
             {/* PICKS */}
-            <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-start">
-
-                {/* BLUE */}
+            <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-start">
                 <SpectatorTeamColumn
-                    title="BLUE TEAM"
+                    title={draft.blueTeamName ?? "BLUE TEAM"}
                     color="BLUE"
+                    team="BLUE"
                     picks={draft.bluePicks}
-                    getChampion={getChamp}
-                    team={"BLUE"}
-                    phase={draft.phase}
+                    getChampion={(id) => getChamp(id)}
                     turn={draft.turn}
+                    phase={draft.phase}
                     PICK_SLOTS={PICK_SLOTS}
-                    lastPickedChampion={lastPickedChampion}
+                    lastPickedChampion={draft.lastPickedChampion ?? lastPickedChampion}
+                    previewChampion={bluePreview}
                 />
 
                 <div className="h-full w-px bg-neutral-700" />
 
-                {/* RED */}
                 <SpectatorTeamColumn
-                    title="RED TEAM"
+                    title={draft.redTeamName ?? "RED TEAM"}
                     color="RED"
+                    team="RED"
                     picks={draft.redPicks}
-                    getChampion={getChamp}
-                    team={"RED"}
-                    phase={draft.phase}
+                    getChampion={(id) => getChamp(id)}
                     turn={draft.turn}
+                    phase={draft.phase}
                     PICK_SLOTS={PICK_SLOTS}
-                    lastPickedChampion={lastPickedChampion}
+                    lastPickedChampion={draft.lastPickedChampion ?? lastPickedChampion}
+                    previewChampion={redPreview}
                 />
             </div>
 
-            {/* Bans Row */}
-            <div className="grid grid-cols-[1fr_1fr] gap-8">
-                <BanRow
-                    team="BLUE"
-                    bans={blueBans}
-                    turn={draft.turn}
-                    phase={draft.phase}
-                    lastPickedChampion={lastPickedChampion}
-                    BAN_SLOTS={BAN_SLOTS}
-                />
-                <BanRow
-                    team="RED"
-                    bans={redBans}
-                    turn={draft.turn}
-                    phase={draft.phase}
-                    lastPickedChampion={lastPickedChampion}
-                    BAN_SLOTS={BAN_SLOTS}
-                />
+            {/* BANS */}
+            <div className="mt-10 grid grid-cols-[1fr_1fr] gap-8">
+                <div className="rounded-2xl bg-blue-950/30 p-4 ring-1 ring-blue-500/20">
+                    <BanRow
+                        team="BLUE"
+                        bans={blueBans}
+                        turn={draft.turn}
+                        phase={draft.phase}
+                        lastPickedChampion={draft.lastPickedChampion ?? lastPickedChampion}
+                        BAN_SLOTS={BAN_SLOTS}
+                        previewChampion={redPreview}
+                    />
+                </div>
+
+                <div className="rounded-2xl bg-red-950/30 p-4 ring-1 ring-red-500/20">
+                    <BanRow
+                        team="RED"
+                        bans={redBans}
+                        turn={draft.turn}
+                        phase={draft.phase}
+                        lastPickedChampion={draft.lastPickedChampion ?? lastPickedChampion}
+                        BAN_SLOTS={BAN_SLOTS}
+                        previewChampion={bluePreview}
+                    />
+                </div>
             </div>
         </div>
     );

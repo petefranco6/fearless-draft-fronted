@@ -1,9 +1,13 @@
 import type { DraftState } from "../types/draft";
 import type { Champion } from "../utils/championService";
 import PicksColumn from "./PicksColumn";
-import BanRow from "./BanRow.tsx";
+import BanRow from "./BanRow";
 import AvailableChampionsGrid from "./AvailableChampionsGrid";
-import LockInButton from "./LockInButton.tsx";
+import LockInButton from "./LockInButton";
+import { buildDraftSteps } from "../utils/draftOrder.ts";
+import ServerTurnTimer from "./ServerTurnTimer.tsx";
+import noneIcon from "../assets/draft/none-champion.svg";
+import noneSplash from "../assets/draft/none-champion-splash.svg";
 
 type Props = {
     draft: DraftState;
@@ -12,9 +16,22 @@ type Props = {
     onSelect: (championId: string) => void;
     PICK_SLOTS: number;
     BAN_SLOTS: number;
-    lastPickedChampion: string | null;
-    selectedChampion: string | null;
     role: string;
+    lastPickedChampion?: string | null;
+};
+
+const NONE_ID = "NONE";
+
+/**
+ * NOTE: Public URL assets must exist on your frontend dev server.
+ * If you still can't access /assets/... in the browser, move these svgs under src/assets
+ * and import them instead.
+ */
+const NONE_CHAMPION: Champion = {
+    id: NONE_ID,
+    name: "None",
+    imgUrl: noneIcon,
+    splashUrl: noneSplash,
 };
 
 export default function DraftBoard({
@@ -24,104 +41,99 @@ export default function DraftBoard({
                                        onSelect,
                                        PICK_SLOTS,
                                        BAN_SLOTS,
-                                       lastPickedChampion,
-                                       selectedChampion,
-                                       role
+                                       role,
+                                       lastPickedChampion = null,
                                    }: Props) {
-    // Combine all used champion IDs
-    const draftUsedIds: string[] = [
-        ...draft.bluePicks,
-        ...draft.redPicks,
-        ...draft.bans,
-    ];
+    const champMap = new Map<string, Champion>(champions.map((c) => [c.id, c]));
 
-    // Helper: map pick IDs to Champion objects
-    const mapIdsToChampions = (ids: string[]): (Champion | null)[] =>
-        ids.map((id) => champions.find((c) => c.id === id) ?? null);
+    const resolveChampion = (id: string | null | undefined): Champion | null => {
+        if (!id) return null;
+        if (id === NONE_ID) return NONE_CHAMPION;
+        return champMap.get(id) ?? null;
+    };
 
-    const bluePicks = mapIdsToChampions(draft.bluePicks);
-    const redPicks = mapIdsToChampions(draft.redPicks);
+    const draftUsedIds = [...draft.bluePicks, ...draft.redPicks, ...draft.bans];
 
-    const bluePreview =
-        draft.previews.BLUE
-            ? champions.find(c => c.id === draft.previews.BLUE) ?? null
-            : null;
+    const bluePicks = draft.bluePicks.map(resolveChampion);
+    const redPicks = draft.redPicks.map(resolveChampion);
 
-    const redPreview =
-        draft.previews.RED
-            ? champions.find(c => c.id === draft.previews.RED) ?? null
-            : null;
+    const bluePreview = resolveChampion(draft.previews?.BLUE);
+    const redPreview = resolveChampion(draft.previews?.RED);
 
+    const activePreview =
+        draft.turn === "BLUE" ? bluePreview : draft.turn === "RED" ? redPreview : null;
 
-    // Split bans into BLUE and RED
+    const steps = buildDraftSteps(draft.firstPickTeam);
+    const banSteps = steps.filter((s) => s.phase === "BAN");
+
     const blueBans: (Champion | null)[] = [];
     const redBans: (Champion | null)[] = [];
 
-    draft.bans?.forEach((champId, index) => {
-        const champ = champions.find((c) => c.id === champId) ?? null;
-
-        if (index < 6) {
-            // Phase 1 bans: BLUE, RED, BLUE, RED, BLUE, RED
-            if (index % 2 === 0) {
-                blueBans.push(champ);
-            } else {
-                redBans.push(champ);
-            }
-
-        } else {
-            // Phase 2 bans: RED, BLUE, RED, BLUE
-            if ((index - 6) % 2 === 0) {
-                redBans.push(champ);
-            } else {
-                blueBans.push(champ);
-            }
-
-        }
+    draft.bans.forEach((id, i) => {
+        const step = banSteps[i];
+        if (!step) return;
+        (step.turn === "BLUE" ? blueBans : redBans).push(resolveChampion(id));
     });
 
     return (
-        <div className="grid grid-rows-[auto_auto] gap-5">
-            {/* Picks Section */}
-            <div className="rounded-2xl bg-neutral-900/80 shadow-xl p-4">
-                <div className="grid grid-cols-[minmax(280px,1fr)_2fr_minmax(280px,1fr)] gap-6">
-                    <div className="rounded-xl bg-black/40 p-4 ring-1 ring-white/5">
-                        <PicksColumn
-                            team="BLUE"
-                            picks={bluePicks}
-                            turn={draft.turn}
-                            phase={draft.phase}
-                            lastPickedChampion={draft.lastPickedChampion}
-                            PICK_SLOTS={PICK_SLOTS}
-                            previewChampion={bluePreview}
-                        />
-                    </div>
+        <div className="h-screen w-full bg-neutral-950 text-white overflow-hidden">
+            {/* HEADER */}
+            <div className="h-[96px] px-4 flex items-center justify-between border-b border-neutral-800 bg-neutral-900/60">
+                <div className="flex items-center gap-3">
+                    <span className="h-3 w-3 rounded-full bg-blue-500" />
+                    <span className="text-lg font-semibold">{draft.blueTeamName}</span>
+                </div>
 
-                    <AvailableChampionsGrid
-                        champions={champions}
-                        draftUsedIds={draftUsedIds}
-                        onSelect={onSelect}
-                    />
-
-                    <div className="rounded-xl bg-black/40 p-4 ring-1 ring-white/5">
-                        <PicksColumn
-                            team="RED"
-                            picks={redPicks}
-                            turn={draft.turn}
-                            phase={draft.phase}
-                            lastPickedChampion={draft.lastPickedChampion}
-                            PICK_SLOTS={PICK_SLOTS}
-                            previewChampion={redPreview}
-                        />
+                <div className="flex flex-col items-center gap-1">
+                    <ServerTurnTimer draft={draft} />
+                    <div className="text-xs text-neutral-400">
+                        {draft.phase} • Step {draft.step}
                     </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <span className="text-lg font-semibold">{draft.redTeamName}</span>
+                    <span className="h-3 w-3 rounded-full bg-red-500" />
                 </div>
             </div>
 
-            {/* Divider */}
-            <div className="h-px bg-linear-to-r from-transparent via-white/10 to-transparent" />
+            {/* MAIN CONTENT */}
+            <div className="h-[calc(100vh-96px)] grid grid-rows-[1fr_auto] gap-3 p-3">
+                {/* PICKS + GRID */}
+                <div className="grid grid-cols-[1fr_2fr_1fr] gap-3 h-full">
+                    <PicksColumn
+                        team="BLUE"
+                        picks={bluePicks}
+                        previewChampion={bluePreview}
+                        turn={draft.turn}
+                        phase={draft.phase}
+                        lastPickedChampion={draft.lastPickedChampion}
+                        PICK_SLOTS={PICK_SLOTS}
+                        teamName={draft.blueTeamName}
+                    />
 
-            {/* Bans + Lock In */}
-            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-12">
-                <div className="rounded-xl bg-blue-950/40 p-4 shadow-lg ring-1 ring-blue-500/20">
+                    <div className="h-full rounded-xl border border-neutral-800 bg-neutral-900/40 p-2">
+                        <AvailableChampionsGrid
+                            champions={champions}
+                            draftUsedIds={draftUsedIds}
+                            onSelect={onSelect}
+                        />
+                    </div>
+
+                    <PicksColumn
+                        team="RED"
+                        picks={redPicks}
+                        previewChampion={redPreview}
+                        turn={draft.turn}
+                        phase={draft.phase}
+                        lastPickedChampion={draft.lastPickedChampion}
+                        PICK_SLOTS={PICK_SLOTS}
+                        teamName={draft.redTeamName}
+                    />
+                </div>
+
+                {/* BANS + ACTION */}
+                <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-center">
                     <BanRow
                         team="BLUE"
                         bans={blueBans}
@@ -129,19 +141,24 @@ export default function DraftBoard({
                         phase={draft.phase}
                         lastPickedChampion={lastPickedChampion}
                         BAN_SLOTS={BAN_SLOTS}
+                        previewChampion={bluePreview}
                     />
-                </div>
 
-                <LockInButton
-                    draftUsedIds={draftUsedIds}
-                    onPick={onPick}
-                    champion={selectedChampion}
-                    phase={draft.phase}
-                    turn={draft.turn}
-                    team={role}
-                />
+                    <div className="flex flex-col items-center gap-2 px-4">
+                        <div className="text-xs text-neutral-400">Current Selection</div>
+                        <div className="text-sm font-semibold">
+                            {activePreview?.name ?? "None"}
+                        </div>
+                        <LockInButton
+                            team={role}
+                            turn={draft.turn}
+                            phase={draft.phase}
+                            draftUsedIds={draftUsedIds}
+                            champion={activePreview}
+                            onPick={onPick}
+                        />
+                    </div>
 
-                <div className="rounded-xl bg-red-950/40 p-4 shadow-lg ring-1 ring-red-500/20">
                     <BanRow
                         team="RED"
                         bans={redBans}
@@ -149,9 +166,11 @@ export default function DraftBoard({
                         phase={draft.phase}
                         lastPickedChampion={lastPickedChampion}
                         BAN_SLOTS={BAN_SLOTS}
+                        previewChampion={redPreview}
                     />
                 </div>
             </div>
         </div>
     );
 }
+

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <radialGradient id="bg" cx="35%" cy="30%" r="90%">
+      <stop offset="0%" stop-color="#1f2937"></stop>
+      <stop offset="55%" stop-color="#0b1220"></stop>
+      <stop offset="100%" stop-color="#05070d"></stop>
+    </radialGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9ca3af"></stop>
+      <stop offset="50%" stop-color="#6b7280"></stop>
+      <stop offset="100%" stop-color="#9ca3af"></stop>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.55"></feDropShadow>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="256" height="256" rx="28" fill="url(#bg)"></rect>
+
+  <!-- Subtle grid -->
+  <g opacity="0.08" stroke="#e5e7eb" stroke-width="2">
+    <path d="M16 64 H240"></path>
+    <path d="M16 128 H240"></path>
+    <path d="M16 192 H240"></path>
+    <path d="M64 16 V240"></path>
+    <path d="M128 16 V240"></path>
+    <path d="M192 16 V240"></path>
+  </g>
+
+  <!-- Circle + slash "no" symbol -->
+  <g filter="url(#softShadow)">
+    <circle cx="128" cy="118" r="72" fill="none" stroke="url(#ring)" stroke-width="14" opacity="0.95"></circle>
+    <path d="M82 164 L174 72" stroke="#9ca3af" stroke-width="18" stroke-linecap="round" opacity="0.9"></path>
+  </g>
+
+  <!-- Label -->
+  <g font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" text-anchor="middle">
+    <text x="128" y="220" font-size="22" fill="#d1d5db" letter-spacing="2" opacity="0.95">NONE</text>
+    <text x="128" y="242" font-size="12" fill="#9ca3af" letter-spacing="1" opacity="0.9">SKIP</text>
+  </g>
+</svg>

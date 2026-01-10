@@ -1,36 +1,39 @@
-// websocketService.ts
-import { Client} from "@stomp/stompjs";
+import { Client } from "@stomp/stompjs";
 import type {IMessage} from "@stomp/stompjs";
-import type {DraftState, DraftAction} from "../types/draft.ts";
+import type { DraftState, DraftAction } from "../types/draft";
 
-export type DraftStateCallback = (state: DraftState) => void; // replace 'any' with DraftState type
+export type DraftStateCallback = (state: DraftState) => void;
 
 export class WebSocketService {
     private client: Client | null = null;
 
-    connect(onMessage: DraftStateCallback) {
+    connect() {
+        if (this.client?.connected) return;
+
         this.client = new Client({
             brokerURL: "ws://localhost:8080/ws",
             reconnectDelay: 5000,
             debug: (str) => console.log("[STOMP]", str),
         });
 
-        this.client.onConnect = () => {
-            console.log("Connected to WebSocket");
-
-            // Subscribe to draft topic
-            this.client?.subscribe("/topic/draft", (msg: IMessage) => {
-                const state = JSON.parse(msg.body);
-                console.log(msg.body,"this is the msg")
-                onMessage(state);
-            });
-        };
-
         this.client.activate();
     }
 
+    subscribe(draftId: string, callback: DraftStateCallback) {
+        if (!this.client) return;
+
+        this.client.onConnect = () => {
+            this.client?.subscribe(
+                `/topic/draft/${draftId}`,
+                (msg: IMessage) => {
+                    callback(JSON.parse(msg.body));
+                }
+            );
+        };
+    }
+
     sendAction(action: DraftAction) {
-        if (!this.client || !this.client.connected) return;
+        if (!this.client?.connected) return;
 
         this.client.publish({
             destination: "/app/draft/action",
@@ -38,12 +41,17 @@ export class WebSocketService {
         });
     }
 
-    sendPreview(team: "BLUE" | "RED", championId: string) {
-        if (!this.client || !this.client.connected) return;
+    sendPreview(
+        draftId: string,
+        team: "BLUE" | "RED",
+        championId: string
+    ) {
+        if (!this.client?.connected) return;
 
         this.client.publish({
             destination: "/app/draft/preview",
             body: JSON.stringify({
+                draftId,
                 team,
                 championId,
             }),
@@ -52,5 +60,6 @@ export class WebSocketService {
 
     disconnect() {
         this.client?.deactivate();
+        this.client = null;
     }
 }

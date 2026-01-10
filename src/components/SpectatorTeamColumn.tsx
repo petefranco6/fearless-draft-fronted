@@ -1,6 +1,5 @@
 import type { Champion } from "../utils/championService";
-//import {splashAdjustments} from "../utils/splashAdjustments.ts";
-import SpectatorPickSlot from "./SpectatorPickSlot.tsx";
+import SpectatorPickSlot from "./SpectatorPickSlot";
 
 interface TeamColumnProps {
     title: string;
@@ -12,7 +11,7 @@ interface TeamColumnProps {
     turn: string | null;
     PICK_SLOTS: number;
     lastPickedChampion: string | null;
-
+    previewChampion: Champion | null;
 }
 
 export function SpectatorTeamColumn({
@@ -21,57 +20,50 @@ export function SpectatorTeamColumn({
                                         picks,
                                         getChampion,
                                         team,
-                                        turn,
                                         phase,
+                                        turn,
                                         PICK_SLOTS,
-                                        lastPickedChampion
+                                        lastPickedChampion,
+                                        previewChampion,
                                     }: TeamColumnProps) {
-
-
 
     const textClass =
         color === "BLUE" ? "text-blue-400" : "text-red-400";
 
+    // Same logic as PicksColumn
+    const activePickIndex =
+        phase === "PICK" ? picks.length : -1;
+
     return (
         <div className="space-y-8">
             {/* Team title */}
-            <h2
-                className={`${textClass} font-extrabold text-2xl tracking-wide text-center`}
-            >
+            <h2 className={`${textClass} font-extrabold text-2xl tracking-wide text-center`}>
                 {title}
             </h2>
 
             {/* Picks */}
             <div className="flex flex-row gap-2 items-center">
                 {Array.from({ length: PICK_SLOTS }).map((_, i) => {
-                    const activePickIndex =
-                        phase === "PICK" && turn === team
-                            ? picks.length
-                            : -1;
-
                     const champId = picks[i];
-                    const champ = champId ? getChampion(champId) : undefined;
+                    const lockedChampion =
+                        champId ? getChampion(champId) ?? null : null;
 
-                    const isActive = i === activePickIndex;
+                    const isActive =
+                        team === turn &&
+                        phase === "PICK" &&
+                        i === activePickIndex;
 
-                    if (!champ) {
-                        // Empty slot (future pick)
-                        return (
-                            <div
-                                key={i}
-                                className={`w-44 h-80 rounded-2xl bg-neutral-800 border border-neutral-700
-                                ${isActive ? "ring-4 ring-yellow-400 animate-pulse" : ""}
-                                `}
-                            />
-                        );
-                    }
+                    const showPreview =
+                        isActive && !lockedChampion;
 
                     return (
                         <SpectatorPickSlot
                             key={i}
-                            champion={champ}
                             team={team}
-                            isLastPicked={champ?.id === lastPickedChampion}
+                            lockedChampion={lockedChampion}
+                            previewChampion={showPreview ? previewChampion : null}
+                            isLastPicked={lockedChampion?.id === lastPickedChampion}
+                            isActive={isActive}
                         />
                     );
                 })}

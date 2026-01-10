@@ -9,6 +9,7 @@ type Props = {
     lastPickedChampion: string | null;
     PICK_SLOTS: number; // <-- now used
     previewChampion : Champion | null;
+    teamName : string;
 };
 
 export default function PicksColumn({
@@ -18,7 +19,8 @@ export default function PicksColumn({
                                         phase,
                                         lastPickedChampion,
                                         PICK_SLOTS,
-                                        previewChampion
+                                        previewChampion,
+                                        teamName
 
                                     }: Props) {
     // Determine the active pick index for this team
@@ -32,7 +34,7 @@ export default function PicksColumn({
                     team === "BLUE" ? "text-blue-400" : "text-red-400"
                 }`}
             >
-                {team}
+                {teamName}
             </h3>
 
             {Array.from({ length: PICK_SLOTS }).map((_, i) => {

@@ -8,6 +8,7 @@ type Props = {
     phase: string;
     lastPickedChampion: string | null;
     BAN_SLOTS: number; // <-- now used
+    previewChampion : Champion | null;
 };
 
 export default function BanRow({
@@ -17,6 +18,7 @@ export default function BanRow({
                                       phase,
                                       lastPickedChampion,
                                       BAN_SLOTS,
+                                      previewChampion
                                   }: Props) {
     return (
         <div className="flex flex-col gap-2 items-center">
@@ -28,13 +30,16 @@ export default function BanRow({
                             : -1;
                     const champ = bans[i] ?? null;
                     const isActive = i === activeBanIndex;
+                    const showPreview = isActive && !champ;
 
                     return (
                         <DraftBanSlot
                             key={i}
                             isActive={isActive}
                             isLastPicked={champ?.id === lastPickedChampion}
-                            champion={champ}
+                            lockedChampion={champ}
+                            previewChampion={showPreview ? previewChampion : null}
+
                         />
                     );
                 })}

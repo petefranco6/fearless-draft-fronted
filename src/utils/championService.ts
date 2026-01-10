@@ -1,6 +1,7 @@
 type DragonChampionData = {
     id: string;
     name: string;
+    tags: string[];
     image: {
         full: string;
         sprite: string;
@@ -21,6 +22,22 @@ export type Champion = {
     name: string;
     imgUrl: string;
     splashUrl: string;
+    roles: ChampionRole[];
+};
+
+export type ChampionRole = "TOP" | "JUNGLE" | "MID" | "ADC" | "SUPPORT";
+
+const mapTagsToRoles = (tags: string[]): ChampionRole[] => {
+    const roles = new Set<ChampionRole>();
+
+    if (tags.includes("Marksman")) roles.add("ADC");
+    if (tags.includes("Support")) roles.add("SUPPORT");
+    if (tags.includes("Mage") || tags.includes("Assassin")) roles.add("MID");
+    if (tags.includes("Fighter") || tags.includes("Tank")) roles.add("TOP");
+    if (tags.includes("Assassin") || tags.includes("Fighter") || tags.includes("Tank"))
+        roles.add("JUNGLE");
+
+    return Array.from(roles);
 };
 
 export const fetchAllChampions = async (): Promise<Champion[]> => {
@@ -41,6 +58,7 @@ export const fetchAllChampions = async (): Promise<Champion[]> => {
         id: c.id,
         name: c.name,
         imgUrl: `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/img/champion/${c.image.full}`,
-        splashUrl: `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${c.id}_0.jpg`
+        splashUrl: `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${c.id}_0.jpg`,
+        roles: mapTagsToRoles(c.tags)
     }));
 };

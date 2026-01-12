@@ -61,14 +61,17 @@ export default function AvailableChampionsGrid({
     };
 
     return (
-        <div className="flex h-[70vh] flex-col gap-3 rounded-xl border border-neutral-800 bg-neutral-900 p-4 shadow-inner">
+        <div className="flex h-full flex-col gap-4 rounded-xl border border-neutral-800/80 bg-neutral-950/40 p-4 shadow-inner">
             <div className="flex flex-col gap-3">
-                <input
-                    value={searchTerm}
-                    onChange={(event) => setSearchTerm(event.target.value)}
-                    placeholder="Search champions"
-                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
+                <div className="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-500/60">
+                    <span className="text-neutral-500">🔍</span>
+                    <input
+                        value={searchTerm}
+                        onChange={(event) => setSearchTerm(event.target.value)}
+                        placeholder="Search champions"
+                        className="w-full bg-transparent text-sm text-white placeholder-neutral-500 focus:outline-none"
+                    />
+                </div>
 
                 <div className="flex flex-wrap gap-2">
                     {roleFilters.map((role) => {
@@ -80,8 +83,8 @@ export default function AvailableChampionsGrid({
                                 onClick={() => toggleRole(role)}
                                 className={`rounded-full border px-3 py-1 text-xs font-semibold tracking-wide transition ${
                                     isActive
-                                        ? "border-blue-400 bg-blue-500/20 text-blue-200"
-                                        : "border-neutral-700 bg-neutral-800 text-neutral-300 hover:border-neutral-500"
+                                        ? "border-blue-400/70 bg-blue-500/20 text-blue-100"
+                                        : "border-neutral-700 bg-neutral-900 text-neutral-300 hover:border-neutral-500 hover:text-white"
                                 }`}
                             >
                                 {role}
@@ -93,9 +96,9 @@ export default function AvailableChampionsGrid({
 
             <div
                 className="flex-1 overflow-y-auto overscroll-contain
-                   scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900"
+                   scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-950/60"
             >
-                <div className="grid gap-3 justify-center grid-cols-[repeat(auto-fit,minmax(5rem,1fr))]">
+                <div className="grid gap-3 justify-center grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))]">
                     <NoneChampionButton onSelect={handleSelect} />
 
                     {filteredChampions.map((champ) => (

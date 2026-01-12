@@ -71,14 +71,14 @@ export default function LockInButton({
                 onClick={handleReadyClick}
                 disabled={!enabled}
                 className={`
-          px-10 py-4 rounded-xl font-bold uppercase tracking-wide
-          transition-all duration-200 shadow-lg
+          w-full px-6 py-4 rounded-xl font-semibold uppercase tracking-wide
+          transition-all duration-200 shadow-lg border
           ${
                     !enabled
-                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                        ? "bg-neutral-800 text-neutral-500 cursor-not-allowed border-neutral-700"
                         : myReady
-                            ? "bg-neutral-200 text-black hover:bg-neutral-100 active:scale-95"
-                            : "bg-emerald-500 text-black hover:bg-emerald-400 active:scale-95"
+                            ? "bg-neutral-100 text-black hover:bg-white active:scale-95 border-white/60"
+                            : "bg-emerald-500 text-black hover:bg-emerald-400 active:scale-95 border-emerald-300/70"
                 }
         `}
                 title={
@@ -130,14 +130,14 @@ export default function LockInButton({
             onClick={handleClick}
             disabled={!canLockIn}
             className={`
-        px-10 py-4 rounded-xl font-bold uppercase tracking-wide
-        transition-all duration-200 shadow-lg
+        w-full px-6 py-4 rounded-xl font-semibold uppercase tracking-wide
+        transition-all duration-200 shadow-lg border
         ${
                 canLockIn
                     ? isNone
-                        ? "bg-neutral-200 text-black hover:bg-neutral-100 active:scale-95"
-                        : "bg-yellow-500 text-black hover:bg-yellow-400 active:scale-95"
-                    : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                        ? "bg-neutral-100 text-black hover:bg-white active:scale-95 border-white/60"
+                        : "bg-yellow-400 text-black hover:bg-yellow-300 active:scale-95 border-yellow-200/70"
+                    : "bg-neutral-800 text-neutral-500 cursor-not-allowed border-neutral-700"
             }
       `}
         >

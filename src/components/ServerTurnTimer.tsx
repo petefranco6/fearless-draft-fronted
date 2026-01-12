@@ -36,8 +36,8 @@ export default function ServerTurnTimer({draft, className = ""}: Props) {
         <div
             className={`
         inline-flex items-center justify-center gap-3
-        rounded-2xl border bg-neutral-950/30 px-4 py-2 shadow-sm
-        ${isUrgent ? "border-red-500/40 ring-1 ring-red-500/30" : "border-neutral-800"}
+        rounded-2xl border bg-neutral-950/50 px-4 py-2 shadow-sm
+        ${isUrgent ? "border-red-500/50 ring-2 ring-red-500/30" : "border-neutral-800/80"}
         ${className}
       `}
         >

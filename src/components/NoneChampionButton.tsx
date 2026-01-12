@@ -18,15 +18,17 @@ export default function NoneChampionButton({ onSelect, isUsed = false }: Props) 
             disabled={isUsed}
             className={[
                 "relative flex flex-col items-center justify-center",
-                "h-24 w-20 rounded-lg border",
-                "bg-neutral-950/60 border-neutral-700",
+                "h-28 w-20 rounded-xl border",
+                "bg-neutral-900 border-neutral-700",
                 "shadow-sm transition-all",
-                isUsed ? "opacity-40 cursor-not-allowed" : "hover:scale-[1.03] hover:border-neutral-500",
+                isUsed
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:-translate-y-0.5 hover:border-neutral-500 hover:shadow-md",
                 "focus:outline-none focus:ring-2 focus:ring-blue-600/60",
             ].join(" ")}
             title="None (skip this pick/ban)"
         >
-            <div className="text-3xl font-extrabold text-neutral-400 leading-none">Ø</div>
+            <div className="text-3xl font-extrabold text-neutral-300 leading-none">Ø</div>
             <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
                 None
             </div>

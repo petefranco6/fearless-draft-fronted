@@ -21,9 +21,9 @@ export default function DraftBanSlot({
     return (
         <div
             className={`
-        h-14 w-14 flex items-center justify-center rounded
-        bg-gray-600 overflow-hidden
-        ${isActive ? "ring-4 ring-yellow-400 animate-pulse" : ""}
+        h-14 w-14 flex items-center justify-center rounded-lg
+        bg-neutral-800/70 border border-neutral-700 overflow-hidden shadow-sm
+        ${isActive ? "ring-2 ring-yellow-300/80 shadow-md" : ""}
         ${isPreview ? "opacity-90" : ""}
         ${isLastPicked ? "animate-slide-in-left" : ""}
       `}
@@ -35,7 +35,7 @@ export default function DraftBanSlot({
                     className="w-full h-full object-cover grayscale"
                 />
             ) : (
-                "—"
+                <span className="text-xs font-semibold text-neutral-500">—</span>
             )}
         </div>
     );

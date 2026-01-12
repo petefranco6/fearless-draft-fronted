@@ -23,17 +23,20 @@ export default function AvailableChampionButton({
             disabled={disabled}
             title={isFearlessLocked ? "Locked (Fearless)" : isUsed ? "Already used this game" : champ.name}
             className={`
-        relative flex h-28 w-20 flex-col overflow-hidden rounded border text-left
-        transition duration-150
-        ${isFearlessLocked ? "border-emerald-500/60" : "border-gray-600"}
-        ${disabled ? "cursor-not-allowed opacity-55" : "hover:scale-105 hover:ring-2 hover:ring-white"}
+        relative flex h-28 w-20 flex-col overflow-hidden rounded-xl border bg-neutral-900 text-left
+        transition duration-150 shadow-sm
+        ${isFearlessLocked ? "border-emerald-500/60" : "border-neutral-700"}
+        ${disabled ? "cursor-not-allowed opacity-55" : "hover:-translate-y-0.5 hover:border-neutral-500 hover:shadow-md"}
       `}
         >
             {/* Image */}
-            <img src={champ.imgUrl} alt={champ.name} className="h-20 w-full object-cover" />
+            <div className="relative h-20 w-full">
+                <img src={champ.imgUrl} alt={champ.name} className="h-20 w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+            </div>
 
             {/* Name */}
-            <span className="px-1 pt-1 text-[0.65rem] font-semibold text-white truncate">
+            <span className="px-1.5 pt-1 text-[0.65rem] font-semibold text-white truncate">
         {champ.name}
       </span>
 

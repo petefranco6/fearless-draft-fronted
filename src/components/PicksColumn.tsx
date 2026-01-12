@@ -25,7 +25,7 @@ export default function PicksColumn({
         phase === "PICK" ? picks.filter(Boolean).length : -1;
 
     return (
-        <div className="flex flex-col gap-2 items-center">
+        <div className="flex flex-col gap-3 items-center">
 
             {Array.from({length: PICK_SLOTS}).map((_, i) => {
                 const lockedChamp = picks[i] ?? null;

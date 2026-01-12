@@ -160,10 +160,10 @@ export default function DraftBoard({
     return (
         <div className="h-screen w-full bg-neutral-950 text-white overflow-hidden">
             {/* HEADER */}
-            <div className="h-24 px-4 flex items-center justify-between border-b border-neutral-800 bg-neutral-900/70">
+            <div className="h-24 px-6 flex items-center justify-between border-b border-neutral-800/80 bg-neutral-900/80 backdrop-blur">
                 {/* BLUE */}
                 <div className="flex items-center gap-3 min-w-0">
-                    <span className={`h-3 w-3 rounded-full ${blueDotClass}`}/>
+                    <span className={`h-3 w-3 rounded-full shadow ${blueDotClass}`}/>
                     <div className="min-w-0">
                         <div className="truncate text-lg font-semibold">{draft.blueTeamName}</div>
                         {!isStarted && (
@@ -194,15 +194,15 @@ export default function DraftBoard({
                             </div>
                         )}
                     </div>
-                    <span className={`h-3 w-3 rounded-full ${redDotClass}`}/>
+                    <span className={`h-3 w-3 rounded-full shadow ${redDotClass}`}/>
                 </div>
             </div>
 
             {/* MAIN CONTENT */}
-            <div className="h-[calc(100vh-96px)] grid grid-rows-[minmax(0,1fr)_auto] gap-3 p-3">
+            <div className="h-[calc(100vh-96px)] grid grid-rows-[minmax(0,1fr)_auto] gap-4 p-4">
                 {/* PICKS + GRID */}
-                <div className="grid grid-cols-[1fr_2fr_1fr] gap-3 h-full min-h-0">
-                    <div>
+                <div className="grid grid-cols-[1fr_2fr_1fr] gap-4 h-full min-h-0">
+                    <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 shadow-lg">
                         <PicksColumn
                             team="BLUE"
                             picks={bluePicks}
@@ -214,18 +214,16 @@ export default function DraftBoard({
                         />
                     </div>
 
-                    <div className="h-full min-h-0 rounded-2xl p-2">
-                        <div className="h-full min-h-0 p-1">
-                            <AvailableChampionsGrid
-                                champions={champions}
-                                draftUsedIds={draftUsedIds}
-                                fearlessLockedIds={fearlessLockedIds}
-                                onSelect={onSelect}
-                            />
-                        </div>
+                    <div className="h-full min-h-0 rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 shadow-lg">
+                        <AvailableChampionsGrid
+                            champions={champions}
+                            draftUsedIds={draftUsedIds}
+                            fearlessLockedIds={fearlessLockedIds}
+                            onSelect={onSelect}
+                        />
                     </div>
 
-                    <div>
+                    <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 shadow-lg">
                         <PicksColumn
                             team="RED"
                             picks={redPicks}
@@ -239,8 +237,8 @@ export default function DraftBoard({
                 </div>
 
                 {/* BANS + ACTION */}
-                <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-stretch">
-                    <div className="rounded-2xl p-2">
+                <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-stretch">
+                    <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 shadow-lg">
                         <BanRow
                             team="BLUE"
                             bans={blueBans}
@@ -253,7 +251,7 @@ export default function DraftBoard({
                     </div>
 
                     {/* ACTION PANEL */}
-                    <div className="w-65 flex flex-col justify-center">
+                    <div className="w-65 flex flex-col justify-center rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 shadow-lg">
                         <LockInButton
                             team={role}
                             turn={draft.turn}
@@ -269,14 +267,14 @@ export default function DraftBoard({
                         {draft.mode === "FEARLESS_SERIES" && draft.phase === "COMPLETE" && draft.seriesId && (
                             <button
                                 onClick={onNextGame}
-                                className="mt-2 w-full px-4 py-2 rounded-xl font-bold bg-emerald-500 text-black hover:bg-emerald-400 active:scale-[0.98] transition"
+                                className="mt-3 w-full px-4 py-2 rounded-xl font-semibold uppercase tracking-wide bg-emerald-500/90 text-black hover:bg-emerald-400 active:scale-[0.98] transition"
                             >
                                 Next Game
                             </button>
                         )}
                     </div>
 
-                    <div className="p-2">
+                    <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 shadow-lg">
                         <BanRow
                             team="RED"
                             bans={redBans}

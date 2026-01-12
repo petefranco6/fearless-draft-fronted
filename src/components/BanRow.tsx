@@ -22,7 +22,7 @@ export default function BanRow({
                                   }: Props) {
     return (
         <div className="flex flex-col gap-2 items-center">
-            <div className="flex flex-wrap gap-4 justify-center">
+            <div className="flex flex-wrap gap-3 justify-center">
                 {Array.from({ length: BAN_SLOTS }).map((_, i) => {
                     const activeBanIndex =
                         phase === "BAN" && turn === team

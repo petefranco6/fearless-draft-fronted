@@ -58,6 +58,16 @@ export class WebSocketService {
         });
     }
 
+    sendReady(draftId: string, team: "BLUE" | "RED", ready: boolean) {
+        if (!this.client?.connected) return;
+
+        this.client.publish({
+            destination: "/app/draft/ready",
+            body: JSON.stringify({ draftId, team, ready }),
+        });
+    }
+
+
     disconnect() {
         this.client?.deactivate();
         this.client = null;

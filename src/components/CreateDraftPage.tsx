@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+type DraftTurn = "BLUE" | "RED";
+type DraftMode = "SINGLE" | "FEARLESS_SERIES";
+
 export default function CreateDraftPage() {
     const navigate = useNavigate();
 
@@ -9,7 +12,11 @@ export default function CreateDraftPage() {
     const [redTeamName, setRedTeamName] = useState("");
 
     // Which team gets first pick
-    const [firstPickTeam, setFirstPickTeam] = useState<"BLUE" | "RED">("BLUE");
+    const [firstPickTeam, setFirstPickTeam] = useState<DraftTurn>("BLUE");
+
+    // ✅ Mode
+    const [mode, setMode] = useState<DraftMode>("SINGLE");
+    const [bestOf, setBestOf] = useState<3 | 5>(3);
 
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,18 +31,29 @@ export default function CreateDraftPage() {
             const finalBlueTeamName = blueTeamName.trim() || "Blue Team";
             const finalRedTeamName = redTeamName.trim() || "Red Team";
 
-            const res = await fetch("http://localhost:8080/draft", {
+            const basePayload = {
+                blueTeamName: finalBlueTeamName,
+                redTeamName: finalRedTeamName,
+                firstPickTeam,
+            };
+
+            const url =
+                mode === "SINGLE"
+                    ? "http://localhost:8080/draft"
+                    : "http://localhost:8080/series";
+
+            const payload =
+                mode === "SINGLE" ? basePayload : { ...basePayload, bestOf };
+
+            const res = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    blueTeamName: finalBlueTeamName,
-                    redTeamName: finalRedTeamName,
-                    firstPickTeam,
-                }),
+                body: JSON.stringify(payload),
             });
 
             if (!res.ok) {
-                throw new Error("Failed to create draft");
+                const text = await res.text().catch(() => "");
+                throw new Error(text || "Failed to create draft");
             }
 
             const draft = await res.json();
@@ -48,6 +66,9 @@ export default function CreateDraftPage() {
         }
     };
 
+    const blueLabel = blueTeamName.trim() || "Blue Team";
+    const redLabel = redTeamName.trim() || "Red Team";
+
     return (
         <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4">
             <div className="w-full max-w-lg bg-neutral-900 border border-neutral-800 rounded-2xl shadow-xl p-8 space-y-6">
@@ -57,6 +78,61 @@ export default function CreateDraftPage() {
                     <p className="text-neutral-400 text-sm">
                         Leave team names blank to use defaults
                     </p>
+                </div>
+
+                {/* ✅ Mode */}
+                <div className="space-y-3">
+                    <label className="block text-sm font-medium text-neutral-300">
+                        Draft Mode
+                    </label>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setMode("SINGLE")}
+                            className={`rounded-xl border px-4 py-3 text-left transition ${
+                                mode === "SINGLE"
+                                    ? "border-blue-500 bg-blue-500/10"
+                                    : "border-neutral-700 bg-neutral-800 hover:border-neutral-500"
+                            }`}
+                        >
+                            <div className="text-sm font-semibold text-white">Single Game</div>
+                            <div className="text-xs text-neutral-400 mt-1">
+                                Standard draft (no locks).
+                            </div>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => setMode("FEARLESS_SERIES")}
+                            className={`rounded-xl border px-4 py-3 text-left transition ${
+                                mode === "FEARLESS_SERIES"
+                                    ? "border-emerald-400 bg-emerald-400/10"
+                                    : "border-neutral-700 bg-neutral-800 hover:border-neutral-500"
+                            }`}
+                        >
+                            <div className="text-sm font-semibold text-white">Fearless</div>
+                            <div className="text-xs text-neutral-400 mt-1">
+                                Picks lock across games.
+                            </div>
+                        </button>
+                    </div>
+
+                    {mode === "FEARLESS_SERIES" && (
+                        <div className="flex items-center justify-between gap-3">
+                            <label className="text-sm font-medium text-neutral-300">
+                                Best of
+                            </label>
+                            <select
+                                value={bestOf}
+                                onChange={(e) => setBestOf(Number(e.target.value) as 3 | 5)}
+                                className="rounded-lg bg-neutral-800 border border-neutral-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                            >
+                                <option value={3}>Bo3</option>
+                                <option value={5}>Bo5</option>
+                            </select>
+                        </div>
+                    )}
                 </div>
 
                 {/* Team Inputs */}
@@ -93,17 +169,11 @@ export default function CreateDraftPage() {
                     </label>
                     <select
                         value={firstPickTeam}
-                        onChange={(e) =>
-                            setFirstPickTeam(e.target.value as "BLUE" | "RED")
-                        }
+                        onChange={(e) => setFirstPickTeam(e.target.value as DraftTurn)}
                         className="w-full rounded-lg bg-neutral-800 border border-neutral-700 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-neutral-600"
                     >
-                        <option value="BLUE">
-                            {blueTeamName.trim() || "Blue Team"}
-                        </option>
-                        <option value="RED">
-                            {redTeamName.trim() || "Red Team"}
-                        </option>
+                        <option value="BLUE">{blueLabel}</option>
+                        <option value="RED">{redLabel}</option>
                     </select>
                 </div>
 
@@ -125,8 +195,19 @@ export default function CreateDraftPage() {
             transition-colors
           "
                 >
-                    {isSubmitting ? "Creating Draft..." : "Create Draft"}
+                    {isSubmitting
+                        ? mode === "SINGLE"
+                            ? "Creating Draft..."
+                            : "Creating Series..."
+                        : mode === "SINGLE"
+                            ? "Create Draft"
+                            : "Create Fearless Series"}
                 </button>
+
+                {/* Hint */}
+                <div className="text-xs text-neutral-500 text-center">
+                    After creating, both teams must click <span className="text-neutral-300 font-semibold">Ready</span> to start.
+                </div>
             </div>
         </div>
     );

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import DraftBoard from "./DraftBoard";
 import SpectatorDraft from "./SpectatorDraft";
@@ -18,6 +18,8 @@ const BAN_SLOTS = 5;
 const wsService = new WebSocketService();
 
 export default function DraftPage() {
+    const navigate = useNavigate();
+
     /* ---------------- URL PARAM ---------------- */
     const params = useParams<{ draftId: string }>();
     const draftId = params.draftId ?? null;
@@ -29,8 +31,7 @@ export default function DraftPage() {
     const [role, setRole] = useState<Role | null>(() => {
         if (!draftId) return null;
         const saved = localStorage.getItem(`team:${draftId}`);
-        if (saved === "BLUE" || saved === "RED" || saved === "SPECTATOR")
-            return saved;
+        if (saved === "BLUE" || saved === "RED" || saved === "SPECTATOR") return saved;
         return null;
     });
 
@@ -70,6 +71,37 @@ export default function DraftPage() {
         });
     };
 
+    const setReady = (ready: boolean) => {
+        if (!draftId || !role || role === "SPECTATOR") return;
+        wsService.sendReady(draftId, role, ready);
+    };
+
+    // ✅ Fearless series: advance to next game
+    const nextGame = async () => {
+        if (!draft) return;
+        if (draft.mode !== "FEARLESS_SERIES") return;
+        if (!draft.seriesId) return;
+        if (draft.phase !== "COMPLETE") return;
+
+        const res = await fetch(`http://localhost:8080/series/${draft.seriesId}/next`, {
+            method: "POST",
+        });
+
+        if (!res.ok) {
+            const text = await res.text().catch(() => "");
+            alert(`Failed to start next game (${res.status}). ${text}`);
+            return;
+        }
+
+        const nextDraft: DraftState = await res.json();
+
+        // Optional: clear role selection so each game can re-pick roles if desired.
+        // If you want to keep same role across games, delete these two lines.
+        localStorage.removeItem(`team:${nextDraft.draftId}`);
+
+        navigate(`/draft/${nextDraft.draftId}`);
+    };
+
     /* ---------------- RENDER ---------------- */
 
     if (!draftId) {
@@ -88,6 +120,8 @@ export default function DraftPage() {
     }
 
     if (!draft) return <div>Loading draft...</div>;
+
+    const isStarted = draft.turnStartedAt > 0 && draft.turnDurationSeconds > 0;
 
     if (role === "SPECTATOR") {
         return (
@@ -109,6 +143,9 @@ export default function DraftPage() {
             PICK_SLOTS={PICK_SLOTS}
             BAN_SLOTS={BAN_SLOTS}
             role={role}
+            isStarted={isStarted}
+            onSetReady={setReady}
+            onNextGame={nextGame} // ✅ new
         />
     );
 }

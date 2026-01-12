@@ -1,4 +1,4 @@
-import type { Champion } from "../utils/championService";
+import type {Champion} from "../utils/championService";
 
 interface DraftPickSlotProps {
     lockedChampion?: Champion | null;
@@ -27,7 +27,7 @@ export default function DraftPickSlot({
     return (
         <div
             className={`
-                h-28 w-full flex items-center justify-center rounded
+                h-34 w-full flex items-center justify-center rounded
                 overflow-hidden
                 ${championToShow ? teamBg : "bg-gray-700"}
                 ${isActive ? "ring-4 ring-yellow-400 animate-pulse" : ""}

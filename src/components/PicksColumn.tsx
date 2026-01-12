@@ -1,4 +1,4 @@
-import type { Champion } from "../utils/championService";
+import type {Champion} from "../utils/championService";
 import DraftPickSlot from "./DraftPickSlot.tsx";
 
 type Props = {
@@ -8,8 +8,7 @@ type Props = {
     phase: string;
     lastPickedChampion: string | null;
     PICK_SLOTS: number; // <-- now used
-    previewChampion : Champion | null;
-    teamName : string;
+    previewChampion: Champion | null;
 };
 
 export default function PicksColumn({
@@ -20,8 +19,6 @@ export default function PicksColumn({
                                         lastPickedChampion,
                                         PICK_SLOTS,
                                         previewChampion,
-                                        teamName
-
                                     }: Props) {
     // Determine the active pick index for this team
     const activePickIndex =
@@ -29,15 +26,8 @@ export default function PicksColumn({
 
     return (
         <div className="flex flex-col gap-2 items-center">
-            <h3
-                className={`text-center font-bold ${
-                    team === "BLUE" ? "text-blue-400" : "text-red-400"
-                }`}
-            >
-                {teamName}
-            </h3>
 
-            {Array.from({ length: PICK_SLOTS }).map((_, i) => {
+            {Array.from({length: PICK_SLOTS}).map((_, i) => {
                 const lockedChamp = picks[i] ?? null;
 
                 const isActive =

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import type { DraftState } from "../types/draft";
+import {useEffect, useMemo, useState} from "react";
+import type {DraftState} from "../types/draft";
 
 type Props = {
     draft: DraftState;
@@ -13,9 +13,8 @@ function formatTime(totalSeconds: number) {
     return `${m}:${String(r).padStart(2, "0")}`;
 }
 
-export default function ServerTurnTimer({ draft, className = "" }: Props) {
+export default function ServerTurnTimer({draft, className = ""}: Props) {
     const turnKey = `${draft.phase}-${draft.step}-${draft.turn}-${draft.turnStartedAt}`;
-
     const [now, setNow] = useState(() => Date.now());
 
     useEffect(() => {
@@ -29,30 +28,21 @@ export default function ServerTurnTimer({ draft, className = "" }: Props) {
         return Math.max(0, Math.ceil((endsAt - now) / 1000));
     }, [draft.turnStartedAt, draft.turnDurationSeconds, now, turnKey]);
 
-    const pct = useMemo(() => {
-        if (!draft.turnDurationSeconds) return 0;
-        return (secondsLeft / draft.turnDurationSeconds) * 100;
-    }, [secondsLeft, draft.turnDurationSeconds]);
-
     const isUrgent = secondsLeft <= 10 && secondsLeft > 0;
 
     if (draft.phase === "COMPLETE") return null;
 
     return (
-        <div className={`w-full rounded-2xl border border-neutral-800 bg-neutral-900 p-4 shadow-lg ${className}`}>
-            <div className="flex items-center justify-between">
-                <div>
-                    <div className={`text-3xl font-bold ${isUrgent ? "text-red-400" : "text-white"}`}>
-                        {formatTime(secondsLeft)}
-                    </div>
-                </div>
-            </div>
-
-            <div className="mt-4 h-2 w-full rounded-full bg-neutral-800 overflow-hidden">
-                <div
-                    className={`h-full rounded-full transition-all ${isUrgent ? "bg-red-500" : "bg-blue-500"}`}
-                    style={{ width: `${pct}%` }}
-                />
+        <div
+            className={`
+        inline-flex items-center justify-center gap-3
+        rounded-2xl border bg-neutral-950/30 px-4 py-2 shadow-sm
+        ${isUrgent ? "border-red-500/40 ring-1 ring-red-500/30" : "border-neutral-800"}
+        ${className}
+      `}
+        >
+            <div className={`text-2xl font-extrabold tabular-nums ${isUrgent ? "text-red-300" : "text-white"}`}>
+                {formatTime(secondsLeft)}
             </div>
         </div>
     );

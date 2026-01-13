@@ -41,7 +41,7 @@ export default function ServerTurnTimer({draft, className = ""}: Props) {
         ${className}
       `}
         >
-            <div className={`text-2xl font-extrabold tabular-nums ${isUrgent ? "text-red-300" : "text-white"}`}>
+            <div className={`text-3xl font-extrabold tabular-nums ${isUrgent ? "text-red-300" : "text-white"}`}>
                 {formatTime(secondsLeft)}
             </div>
         </div>

@@ -1,4 +1,4 @@
-import type { Champion } from "../utils/championService";
+import type {Champion} from "../utils/championService";
 
 type Props = {
     champ: Champion;
@@ -31,8 +31,8 @@ export default function AvailableChampionButton({
         >
             {/* Image */}
             <div className="relative h-20 w-full">
-                <img src={champ.imgUrl} alt={champ.name} className="h-20 w-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                <img src={champ.imgUrl} alt={champ.name} className="h-20 w-full object-cover"/>
+                <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent"/>
             </div>
 
             {/* Name */}
@@ -53,9 +53,9 @@ export default function AvailableChampionButton({
             )}
 
             {/* Subtle overlay tint for fearless */}
-            {isFearlessLocked && <div className="absolute inset-0 bg-emerald-400/10 pointer-events-none" />}
+            {isFearlessLocked && <div className="absolute inset-0 bg-emerald-400/10 pointer-events-none"/>}
             {/* Subtle overlay tint for used */}
-            {isUsed && !isFearlessLocked && <div className="absolute inset-0 bg-black/15 pointer-events-none" />}
+            {isUsed && !isFearlessLocked && <div className="absolute inset-0 bg-black/15 pointer-events-none"/>}
         </button>
     );
 }

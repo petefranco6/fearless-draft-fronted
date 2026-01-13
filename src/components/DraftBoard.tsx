@@ -160,7 +160,8 @@ export default function DraftBoard({
     return (
         <div className="h-screen w-full bg-neutral-950 text-white overflow-hidden">
             {/* HEADER */}
-            <div className="h-24 px-6 flex items-center justify-between border-b border-neutral-800/80 bg-neutral-900/80 backdrop-blur">
+            <div
+                className="h-24 px-6 flex items-center justify-between">
                 {/* BLUE */}
                 <div className="flex items-center gap-3 min-w-0">
                     <span className={`h-3 w-3 rounded-full shadow ${blueDotClass}`}/>
@@ -176,7 +177,7 @@ export default function DraftBoard({
 
                 {/* CENTER STATUS */}
                 <div className="flex flex-col items-center gap-2">
-                    <ServerTurnTimer draft={draft} className="max-w-65"/>
+                    <ServerTurnTimer draft={draft} className="w-full"/>
                     <div className="flex flex-wrap items-center justify-center gap-3 text-[11px]">
                         {statusChip}
                         {modeChip}
@@ -199,46 +200,40 @@ export default function DraftBoard({
             </div>
 
             {/* MAIN CONTENT */}
-            <div className="h-[calc(100vh-96px)] grid grid-rows-[minmax(0,1fr)_auto] gap-4 p-4">
+            <div className="h-[calc(100vh-90px)] grid grid-rows-[minmax(0,1fr)_auto] gap-4 p-4">
                 {/* PICKS + GRID */}
                 <div className="grid grid-cols-[1fr_2fr_1fr] gap-4 h-full min-h-0">
-                    <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 shadow-lg">
-                        <PicksColumn
-                            team="BLUE"
-                            picks={bluePicks}
-                            previewChampion={bluePreview}
-                            turn={draft.turn}
-                            phase={draft.phase}
-                            lastPickedChampion={draft.lastPickedChampion}
-                            PICK_SLOTS={PICK_SLOTS}
-                        />
-                    </div>
+                    <PicksColumn
+                        team="BLUE"
+                        picks={bluePicks}
+                        previewChampion={bluePreview}
+                        turn={draft.turn}
+                        phase={draft.phase}
+                        lastPickedChampion={draft.lastPickedChampion}
+                        PICK_SLOTS={PICK_SLOTS}
+                    />
+                    <AvailableChampionsGrid
+                        champions={champions}
+                        draftUsedIds={draftUsedIds}
+                        fearlessLockedIds={fearlessLockedIds}
+                        onSelect={onSelect}
+                    />
 
-                    <div className="h-full min-h-0 rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 shadow-lg">
-                        <AvailableChampionsGrid
-                            champions={champions}
-                            draftUsedIds={draftUsedIds}
-                            fearlessLockedIds={fearlessLockedIds}
-                            onSelect={onSelect}
-                        />
-                    </div>
-
-                    <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 shadow-lg">
-                        <PicksColumn
-                            team="RED"
-                            picks={redPicks}
-                            previewChampion={redPreview}
-                            turn={draft.turn}
-                            phase={draft.phase}
-                            lastPickedChampion={draft.lastPickedChampion}
-                            PICK_SLOTS={PICK_SLOTS}
-                        />
-                    </div>
+                    <PicksColumn
+                        team="RED"
+                        picks={redPicks}
+                        previewChampion={redPreview}
+                        turn={draft.turn}
+                        phase={draft.phase}
+                        lastPickedChampion={draft.lastPickedChampion}
+                        PICK_SLOTS={PICK_SLOTS}
+                    />
                 </div>
 
                 {/* BANS + ACTION */}
                 <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-stretch">
-                    <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 shadow-lg">
+                    {/* BLUE BANS PANEL */}
+                    <div className="flex justify-items-start">
                         <BanRow
                             team="BLUE"
                             bans={blueBans}
@@ -251,30 +246,40 @@ export default function DraftBoard({
                     </div>
 
                     {/* ACTION PANEL */}
-                    <div className="w-65 flex flex-col justify-center rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 shadow-lg">
-                        <LockInButton
-                            team={role}
-                            turn={draft.turn}
-                            phase={draft.phase}
-                            draftUsedIds={draftUsedIds}
-                            champion={activePreview}
-                            onPick={onPick}
-                            isStarted={isStarted}
-                            blueReady={draft.blueReady}
-                            redReady={draft.redReady}
-                            onSetReady={onSetReady}
-                        />
-                        {draft.mode === "FEARLESS_SERIES" && draft.phase === "COMPLETE" && draft.seriesId && (
-                            <button
-                                onClick={onNextGame}
-                                className="mt-3 w-full px-4 py-2 rounded-xl font-semibold uppercase tracking-wide bg-emerald-500/90 text-black hover:bg-emerald-400 active:scale-[0.98] transition"
-                            >
-                                Next Game
-                            </button>
-                        )}
+                    <div className="w-70 flex items-stretch">
+                        <div className="w-full">
+
+                            {/* Primary action */}
+                            <div className="flex flex-col gap-2">
+                                <LockInButton
+                                    team={role}
+                                    turn={draft.turn}
+                                    phase={draft.phase}
+                                    draftUsedIds={draftUsedIds}
+                                    champion={activePreview}
+                                    onPick={onPick}
+                                    isStarted={isStarted}
+                                    blueReady={draft.blueReady}
+                                    redReady={draft.redReady}
+                                    onSetReady={onSetReady}
+                                />
+
+                                {draft.mode === "FEARLESS_SERIES" && draft.phase === "COMPLETE" && draft.seriesId && (
+                                    <button
+                                        onClick={onNextGame}
+                                        className="w-full px-4 py-2 rounded-xl font-semibold uppercase tracking-wide
+                       bg-emerald-500/90 text-black hover:bg-emerald-400 active:scale-[0.98]
+                       transition shadow-sm"
+                                    >
+                                        Next Game
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="rounded-2xl border border-neutral-800/80 bg-neutral-900/60 p-3 shadow-lg">
+                    {/* RED BANS PANEL */}
+                    <div className="flex justify-end">
                         <BanRow
                             team="RED"
                             bans={redBans}

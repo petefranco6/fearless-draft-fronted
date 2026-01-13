@@ -2,21 +2,35 @@
 
 
 @keyframes slide-in-left {
-  0% {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 .animate-slide-in-left {
-  animation: slide-in-left 0.3s ease-out;
+    animation: slide-in-left 0.3s ease-out;
 }
 
 @keyframes cinematicZoom {
-  from { transform: scale(1); }
-  to { transform: scale(1.06); }
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.06);
+    }
+}
+
+/* Hide scrollbar but allow scrolling */
+.scrollbar-hidden {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none; /* Chrome / Safari / Edge */
 }

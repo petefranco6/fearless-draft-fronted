@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import {useMemo, useState} from "react";
 import AvailableChampionButton from "./AvailableChampionButton";
-import type { Champion, ChampionRole } from "../utils/championService";
+import type {Champion, ChampionRole} from "../utils/championService";
 import NoneChampionButton from "./NoneChampionButton.tsx";
 
 type Props = {
@@ -61,10 +61,11 @@ export default function AvailableChampionsGrid({
     };
 
     return (
-        <div className="flex h-full flex-col gap-4 rounded-xl border border-neutral-800/80 bg-neutral-950/40 p-4 shadow-inner">
-            <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-500/60">
-                    <span className="text-neutral-500">🔍</span>
+        <div
+            className="flex flex-col gap-4 h-full min-h-0">
+            <div className="flex flex-row-reverse justify-between">
+                <div
+                    className="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-500/60">
                     <input
                         value={searchTerm}
                         onChange={(event) => setSearchTerm(event.target.value)}
@@ -95,11 +96,9 @@ export default function AvailableChampionsGrid({
             </div>
 
             <div
-                className="flex-1 overflow-y-auto overscroll-contain
-                   scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-950/60"
-            >
-                <div className="grid gap-3 justify-center grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))]">
-                    <NoneChampionButton onSelect={handleSelect} />
+                className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hidden">
+                <div className="grid gap-2 justify-center grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))]">
+                    <NoneChampionButton onSelect={handleSelect}/>
 
                     {filteredChampions.map((champ) => (
                         <AvailableChampionButton

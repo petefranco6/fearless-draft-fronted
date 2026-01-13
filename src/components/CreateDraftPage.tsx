@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {useState} from "react";
+import {useNavigate} from "react-router-dom";
 
 type DraftTurn = "BLUE" | "RED";
 type DraftMode = "SINGLE" | "FEARLESS_SERIES";
@@ -37,17 +37,19 @@ export default function CreateDraftPage() {
                 firstPickTeam,
             };
 
+            const API = import.meta.env.VITE_API_URL;
+
             const url =
                 mode === "SINGLE"
-                    ? "http://localhost:8080/draft"
-                    : "http://localhost:8080/series";
+                    ? `${API}/draft`
+                    : `${API}/series`;
 
             const payload =
-                mode === "SINGLE" ? basePayload : { ...basePayload, bestOf };
+                mode === "SINGLE" ? basePayload : {...basePayload, bestOf};
 
             const res = await fetch(url, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(payload),
             });
 
@@ -71,7 +73,8 @@ export default function CreateDraftPage() {
 
     return (
         <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4">
-            <div className="w-full max-w-lg bg-neutral-900 border border-neutral-800 rounded-2xl shadow-xl p-8 space-y-6">
+            <div
+                className="w-full max-w-lg bg-neutral-900 border border-neutral-800 rounded-2xl shadow-xl p-8 space-y-6">
                 {/* Header */}
                 <div className="text-center space-y-1">
                     <h1 className="text-3xl font-bold text-white">Create Draft</h1>
@@ -206,7 +209,8 @@ export default function CreateDraftPage() {
 
                 {/* Hint */}
                 <div className="text-xs text-neutral-500 text-center">
-                    After creating, both teams must click <span className="text-neutral-300 font-semibold">Ready</span> to start.
+                    After creating, both teams must click <span
+                    className="text-neutral-300 font-semibold">Ready</span> to start.
                 </div>
             </div>
         </div>

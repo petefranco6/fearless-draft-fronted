@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {useEffect, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
 
 import DraftBoard from "./DraftBoard";
 import SpectatorDraft from "./SpectatorDraft";
 import RoleSelect from "./RoleSelect";
 
-import type { DraftState } from "../types/draft";
-import type { Role } from "../types/role";
-import type { Champion } from "../utils/championService";
+import type {DraftState} from "../types/draft";
+import type {Role} from "../types/role";
+import type {Champion} from "../utils/championService";
 
-import { fetchAllChampions } from "../utils/championService";
-import { WebSocketService } from "../ws/draftSocket";
+import {fetchAllChampions} from "../utils/championService";
+import {WebSocketService} from "../ws/draftSocket";
 
 const PICK_SLOTS = 5;
 const BAN_SLOTS = 5;
@@ -39,7 +39,8 @@ export default function DraftPage() {
     useEffect(() => {
         if (!draftId) return;
 
-        fetch(`http://localhost:8080/draft/${draftId}`)
+        const API = import.meta.env.VITE_API_URL;
+        fetch(`${API}/draft/${draftId}`)
             .then((res) => res.json())
             .then((state: DraftState) => {
                 setDraft(state);
@@ -83,7 +84,9 @@ export default function DraftPage() {
         if (!draft.seriesId) return;
         if (draft.phase !== "COMPLETE") return;
 
-        const res = await fetch(`http://localhost:8080/series/${draft.seriesId}/next`, {
+        const API = import.meta.env.VITE_API_URL;
+
+        const res = await fetch(`${API}/series/${draft.seriesId}/next`, {
             method: "POST",
         });
 

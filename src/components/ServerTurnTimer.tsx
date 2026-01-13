@@ -14,7 +14,6 @@ function formatTime(totalSeconds: number) {
 }
 
 export default function ServerTurnTimer({draft, className = ""}: Props) {
-    const turnKey = `${draft.phase}-${draft.step}-${draft.turn}-${draft.turnStartedAt}`;
     const [now, setNow] = useState(() => Date.now());
 
     useEffect(() => {
@@ -22,11 +21,24 @@ export default function ServerTurnTimer({draft, className = ""}: Props) {
         return () => window.clearInterval(id);
     }, []);
 
+    useEffect(() => {
+        console.log("TIMER DEBUG", {
+            turnStartedAt: draft.turnStartedAt,
+            turnDurationSeconds: draft.turnDurationSeconds,
+            now: Date.now(),
+        });
+    }, [draft.turnStartedAt, draft.turnDurationSeconds]);
+
+
     const secondsLeft = useMemo(() => {
-        if (!draft.turnStartedAt || !draft.turnDurationSeconds) return 0;
-        const endsAt = draft.turnStartedAt + draft.turnDurationSeconds * 1000;
+        const startedAt = draft.turnStartedAt;
+        const duration = draft.turnDurationSeconds;
+
+        if (!startedAt || !duration) return 0;
+
+        const endsAt = startedAt + duration * 1000;
         return Math.max(0, Math.ceil((endsAt - now) / 1000));
-    }, [draft.turnStartedAt, draft.turnDurationSeconds, now, turnKey]);
+    }, [draft.turnStartedAt, draft.turnDurationSeconds, now]);
 
     const isUrgent = secondsLeft <= 10 && secondsLeft > 0;
 

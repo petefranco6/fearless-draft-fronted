@@ -158,10 +158,10 @@ export default function DraftBoard({
 
 
     return (
-        <div className="h-screen w-full bg-neutral-950 text-white overflow-hidden">
+        <div className="min-h-screen w-full bg-neutral-950 text-white overflow-y-auto lg:overflow-hidden flex flex-col">
             {/* HEADER */}
             <div
-                className="h-24 px-6 flex items-center justify-between">
+                className="h-auto px-4 py-4 flex flex-col gap-4 sm:h-24 sm:px-6 sm:py-0 sm:flex-row sm:items-center sm:justify-between">
                 {/* BLUE */}
                 <div className="flex items-center gap-3 min-w-0">
                     <span className={`h-3 w-3 rounded-full shadow ${blueDotClass}`}/>
@@ -176,7 +176,7 @@ export default function DraftBoard({
                 </div>
 
                 {/* CENTER STATUS */}
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-2 order-2 sm:order-none">
                     <ServerTurnTimer draft={draft} className="w-full"/>
                     <div className="flex flex-wrap items-center justify-center gap-3 text-[11px]">
                         {statusChip}
@@ -186,7 +186,7 @@ export default function DraftBoard({
                 </div>
 
                 {/* RED */}
-                <div className="flex items-center gap-3 min-w-0 justify-end">
+                <div className="flex items-center gap-3 min-w-0 justify-end order-3 sm:order-none">
                     <div className="min-w-0 text-right">
                         <div className="truncate text-lg font-semibold">{draft.redTeamName}</div>
                         {!isStarted && (
@@ -200,38 +200,44 @@ export default function DraftBoard({
             </div>
 
             {/* MAIN CONTENT */}
-            <div className="h-[calc(100vh-90px)] grid grid-rows-[minmax(0,1fr)_auto] gap-4 p-4">
+            <div className="flex-1 min-h-0 grid grid-rows-[minmax(0,1fr)_auto] gap-4 p-3 sm:p-4">
                 {/* PICKS + GRID */}
-                <div className="grid grid-cols-[1fr_2fr_1fr] gap-4 h-full min-h-0">
-                    <PicksColumn
-                        team="BLUE"
-                        picks={bluePicks}
-                        previewChampion={bluePreview}
-                        turn={draft.turn}
-                        phase={draft.phase}
-                        lastPickedChampion={draft.lastPickedChampion}
-                        PICK_SLOTS={PICK_SLOTS}
-                    />
-                    <AvailableChampionsGrid
-                        champions={champions}
-                        draftUsedIds={draftUsedIds}
-                        fearlessLockedIds={fearlessLockedIds}
-                        onSelect={onSelect}
-                    />
+                <div className="grid grid-cols-1 gap-4 h-full min-h-0 lg:grid-cols-[1fr_2fr_1fr]">
+                    <div className="order-2 lg:order-none">
+                        <PicksColumn
+                            team="BLUE"
+                            picks={bluePicks}
+                            previewChampion={bluePreview}
+                            turn={draft.turn}
+                            phase={draft.phase}
+                            lastPickedChampion={draft.lastPickedChampion}
+                            PICK_SLOTS={PICK_SLOTS}
+                        />
+                    </div>
+                    <div className="order-1 lg:order-none">
+                        <AvailableChampionsGrid
+                            champions={champions}
+                            draftUsedIds={draftUsedIds}
+                            fearlessLockedIds={fearlessLockedIds}
+                            onSelect={onSelect}
+                        />
+                    </div>
 
-                    <PicksColumn
-                        team="RED"
-                        picks={redPicks}
-                        previewChampion={redPreview}
-                        turn={draft.turn}
-                        phase={draft.phase}
-                        lastPickedChampion={draft.lastPickedChampion}
-                        PICK_SLOTS={PICK_SLOTS}
-                    />
+                    <div className="order-3 lg:order-none">
+                        <PicksColumn
+                            team="RED"
+                            picks={redPicks}
+                            previewChampion={redPreview}
+                            turn={draft.turn}
+                            phase={draft.phase}
+                            lastPickedChampion={draft.lastPickedChampion}
+                            PICK_SLOTS={PICK_SLOTS}
+                        />
+                    </div>
                 </div>
 
                 {/* BANS + ACTION */}
-                <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-stretch">
+                <div className="grid grid-cols-1 gap-4 items-stretch lg:grid-cols-[1fr_auto_1fr]">
                     {/* BLUE BANS PANEL */}
                     <div className="flex justify-items-start">
                         <BanRow
@@ -246,7 +252,7 @@ export default function DraftBoard({
                     </div>
 
                     {/* ACTION PANEL */}
-                    <div className="w-70 flex items-stretch">
+                    <div className="w-full flex items-stretch lg:w-70">
                         <div className="w-full">
 
                             {/* Primary action */}

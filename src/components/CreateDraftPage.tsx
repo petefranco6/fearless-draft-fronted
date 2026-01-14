@@ -72,9 +72,9 @@ export default function CreateDraftPage() {
     const redLabel = redTeamName.trim() || "Red Team";
 
     return (
-        <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4 py-6 sm:py-0">
             <div
-                className="w-full max-w-lg bg-neutral-900 border border-neutral-800 rounded-2xl shadow-xl p-8 space-y-6">
+                className="w-full max-w-lg bg-neutral-900 border border-neutral-800 rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
                 {/* Header */}
                 <div className="text-center space-y-1">
                     <h1 className="text-3xl font-bold text-white">Create Draft</h1>
@@ -89,7 +89,7 @@ export default function CreateDraftPage() {
                         Draft Mode
                     </label>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <button
                             type="button"
                             onClick={() => setMode("SINGLE")}
@@ -122,7 +122,7 @@ export default function CreateDraftPage() {
                     </div>
 
                     {mode === "FEARLESS_SERIES" && (
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <label className="text-sm font-medium text-neutral-300">
                                 Best of
                             </label>

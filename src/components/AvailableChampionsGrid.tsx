@@ -63,9 +63,9 @@ export default function AvailableChampionsGrid({
     return (
         <div
             className="flex flex-col gap-4 h-full min-h-0">
-            <div className="flex flex-col gap-3 sm:flex-row-reverse sm:items-center sm:justify-between">
+            <div className="flex flex-row-reverse justify-between">
                 <div
-                    className="flex w-full items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-500/60 sm:w-auto">
+                    className="flex items-center gap-2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-500/60">
                     <input
                         value={searchTerm}
                         onChange={(event) => setSearchTerm(event.target.value)}
@@ -97,7 +97,7 @@ export default function AvailableChampionsGrid({
 
             <div
                 className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hidden">
-                <div className="grid gap-2 justify-center grid-cols-[repeat(auto-fit,minmax(4.5rem,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))]">
+                <div className="grid gap-2 justify-center grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))]">
                     <NoneChampionButton onSelect={handleSelect}/>
 
                     {filteredChampions.map((champ) => (

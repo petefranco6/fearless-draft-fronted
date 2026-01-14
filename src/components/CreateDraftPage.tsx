@@ -72,9 +72,9 @@ export default function CreateDraftPage() {
     const redLabel = redTeamName.trim() || "Red Team";
 
     return (
-        <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4 py-6 sm:py-0">
+        <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4">
             <div
-                className="w-full max-w-lg bg-neutral-900 border border-neutral-800 rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
+                className="w-full max-w-lg bg-neutral-900 border border-neutral-800 rounded-2xl shadow-xl p-8 space-y-6">
                 {/* Header */}
                 <div className="text-center space-y-1">
                     <h1 className="text-3xl font-bold text-white">Create Draft</h1>

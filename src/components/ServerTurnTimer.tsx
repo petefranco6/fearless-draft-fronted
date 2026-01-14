@@ -16,29 +16,29 @@ function formatTime(totalSeconds: number) {
 export default function ServerTurnTimer({draft, className = ""}: Props) {
     const [now, setNow] = useState(() => Date.now());
 
+    // This is your local ticking clock (ok)
     useEffect(() => {
         const id = window.setInterval(() => setNow(Date.now()), 250);
         return () => window.clearInterval(id);
     }, []);
 
-    useEffect(() => {
-        console.log("TIMER DEBUG", {
-            turnStartedAt: draft.turnStartedAt,
-            turnDurationSeconds: draft.turnDurationSeconds,
-            now: Date.now(),
-        });
-    }, [draft.turnStartedAt, draft.turnDurationSeconds]);
+    // ✅ Compute server-client offset ONCE per server snapshot
+    const [offsetMs, setOffsetMs] = useState(0);
 
+    useEffect(() => {
+        // draft.serverNow is "server time when this state was sent"
+        // now is "client time when we received/rendered it"
+        // offset should be constant until the next serverNow arrives
+        if (!draft.serverNow) return;
+        setOffsetMs(draft.serverNow - now);
+    }, [draft.serverNow]); // intentionally NOT depending on `now`
 
     const secondsLeft = useMemo(() => {
-        const startedAt = draft.turnStartedAt;
-        const duration = draft.turnDurationSeconds;
+        if (!draft.turnEndsAt || !draft.serverNow) return 0;
 
-        if (!startedAt || !duration) return 0;
-
-        const endsAt = startedAt + duration * 1000;
-        return Math.max(0, Math.ceil((endsAt - now) / 1000));
-    }, [draft.turnStartedAt, draft.turnDurationSeconds, now]);
+        const alignedNow = now + offsetMs;
+        return Math.max(0, Math.ceil((draft.turnEndsAt - alignedNow) / 1000));
+    }, [draft.turnEndsAt, draft.serverNow, now, offsetMs]);
 
     const isUrgent = secondsLeft <= 10 && secondsLeft > 0;
 

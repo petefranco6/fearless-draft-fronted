@@ -44,7 +44,7 @@ export default function DraftPage() {
             .then((res) => res.json())
             .then((state: DraftState) => {
                 setDraft(state);
-
+                console.log(state);
                 wsService.connect();
                 wsService.subscribe(draftId, setDraft);
             });

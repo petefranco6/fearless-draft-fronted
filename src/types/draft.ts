@@ -23,6 +23,8 @@ export type DraftState = {
 
     turnStartedAt: number;
     turnDurationSeconds: number;
+    serverNow: number;
+    turnEndsAt: number;
 
     blueReady: boolean;
     redReady: boolean;

@@ -49,10 +49,10 @@ export default function SpectatorDraft({
     });
 
     return (
-        <div className="min-h-screen bg-neutral-900 text-white p-8">
+        <div className="min-h-screen bg-neutral-900 text-white p-4 sm:p-8">
             {/* HEADER */}
-            <div className="text-center mb-10">
-                <h1 className="text-4xl font-extrabold tracking-wide">FEARLESS DRAFT</h1>
+            <div className="text-center mb-8 sm:mb-10">
+                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-wide">FEARLESS DRAFT</h1>
                 <p className="text-neutral-400 mt-2">
                     {draft.phase === "COMPLETE"
                         ? "Draft Complete"
@@ -61,7 +61,7 @@ export default function SpectatorDraft({
             </div>
 
             {/* PICKS */}
-            <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-start">
+            <div className="grid grid-cols-1 gap-4 items-start lg:grid-cols-[1fr_auto_1fr]">
                 <SpectatorTeamColumn
                     title={draft.blueTeamName ?? "BLUE TEAM"}
                     color="BLUE"
@@ -75,7 +75,7 @@ export default function SpectatorDraft({
                     previewChampion={bluePreview}
                 />
 
-                <div className="h-full w-px bg-neutral-700" />
+                <div className="hidden h-full w-px bg-neutral-700 lg:block" />
 
                 <SpectatorTeamColumn
                     title={draft.redTeamName ?? "RED TEAM"}
@@ -92,7 +92,7 @@ export default function SpectatorDraft({
             </div>
 
             {/* BANS */}
-            <div className="mt-10 grid grid-cols-[1fr_1fr] gap-8">
+            <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1fr] lg:gap-8">
                 <div className="rounded-2xl bg-blue-950/30 p-4 ring-1 ring-blue-500/20">
                     <BanRow
                         team="BLUE"

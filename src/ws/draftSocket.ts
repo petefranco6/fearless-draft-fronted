@@ -1,14 +1,22 @@
-import {Client} from "@stomp/stompjs";
-import type {IMessage} from "@stomp/stompjs";
+import {Client, type IMessage, type StompSubscription} from "@stomp/stompjs";
 import type {DraftState, DraftAction} from "../types/draft";
 
 export type DraftStateCallback = (state: DraftState) => void;
+
+export type SeriesDraftCreatedEvent = {
+    type: "SERIES_DRAFT_CREATED";
+    seriesId: string;
+    gameNumber: number;
+    draftId: string;
+};
+
+export type SeriesEventCallback = (event: SeriesDraftCreatedEvent) => void;
 
 export class WebSocketService {
     private client: Client | null = null;
 
     connect() {
-        if (this.client?.connected) return;
+        if (this.client?.connected || this.client?.active) return;
 
         const apiBase = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
@@ -17,7 +25,7 @@ export class WebSocketService {
         wsUrl.protocol = wsUrl.protocol === "https:" ? "wss:" : "ws:";
 
         this.client = new Client({
-            brokerURL: wsUrl.toString(), // e.g. ws://localhost:8080/ws OR wss://fearless-draft-backend.onrender.com/ws
+            brokerURL: wsUrl.toString(),
             reconnectDelay: 5000,
             debug: (str) => console.log("[STOMP]", str),
         });
@@ -25,18 +33,64 @@ export class WebSocketService {
         this.client.activate();
     }
 
-
-    subscribe(draftId: string, callback: DraftStateCallback) {
-        if (!this.client) return;
-
-        this.client.onConnect = () => {
-            this.client?.subscribe(
-                `/topic/draft/${draftId}`,
-                (msg: IMessage) => {
-                    callback(JSON.parse(msg.body));
-                }
-            );
+    /**
+     * Subscribe to draft state updates.
+     * Returns an unsubscribe function.
+     */
+    subscribeDraft(draftId: string, callback: DraftStateCallback): () => void {
+        if (!this.client) return () => {
         };
+
+        let sub: StompSubscription | undefined;
+
+        const doSubscribe = () => {
+            sub = this.client?.subscribe(`/topic/draft/${draftId}`, (msg: IMessage) => {
+                callback(JSON.parse(msg.body));
+            });
+        };
+
+        // If already connected, subscribe immediately.
+        if (this.client.connected) {
+            doSubscribe();
+        } else {
+            // Preserve any existing onConnect handler.
+            const prev = this.client.onConnect;
+            this.client.onConnect = (frame) => {
+                prev?.(frame);
+                doSubscribe();
+            };
+        }
+
+        return () => sub?.unsubscribe();
+    }
+
+    /**
+     * Subscribe to series-level events (like "next game draft created").
+     * Returns an unsubscribe function.
+     */
+    subscribeSeries(seriesId: string, callback: SeriesEventCallback): () => void {
+        if (!this.client) return () => {
+        };
+
+        let sub: StompSubscription | undefined;
+
+        const doSubscribe = () => {
+            sub = this.client?.subscribe(`/topic/series/${seriesId}`, (msg: IMessage) => {
+                callback(JSON.parse(msg.body) as SeriesDraftCreatedEvent);
+            });
+        };
+
+        if (this.client.connected) {
+            doSubscribe();
+        } else {
+            const prev = this.client.onConnect;
+            this.client.onConnect = (frame) => {
+                prev?.(frame);
+                doSubscribe();
+            };
+        }
+
+        return () => sub?.unsubscribe();
     }
 
     sendAction(action: DraftAction) {
@@ -48,20 +102,12 @@ export class WebSocketService {
         });
     }
 
-    sendPreview(
-        draftId: string,
-        team: "BLUE" | "RED",
-        championId: string
-    ) {
+    sendPreview(draftId: string, team: "BLUE" | "RED", championId: string) {
         if (!this.client?.connected) return;
 
         this.client.publish({
             destination: "/app/draft/preview",
-            body: JSON.stringify({
-                draftId,
-                team,
-                championId,
-            }),
+            body: JSON.stringify({draftId, team, championId}),
         });
     }
 
@@ -73,7 +119,6 @@ export class WebSocketService {
             body: JSON.stringify({draftId, team, ready}),
         });
     }
-
 
     disconnect() {
         this.client?.deactivate();

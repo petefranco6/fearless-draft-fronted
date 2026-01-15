@@ -8,6 +8,7 @@ import {buildDraftSteps} from "../utils/draftOrder.ts";
 import ServerTurnTimer from "./ServerTurnTimer.tsx";
 import noneIcon from "../assets/draft/none-champion.svg";
 import noneSplash from "../assets/draft/none-champion-splash.svg";
+import FearlessLocksRow from "./FearlessLocksRow.tsx";
 
 type Props = {
     draft: DraftState;
@@ -230,6 +231,14 @@ export default function DraftBoard({
                     />
                 </div>
 
+                {/* ✅ Fearless locks (compact, ban-like tiles) */}
+                {draft.mode === "FEARLESS_SERIES" && (
+                    <FearlessLocksRow
+                        lockedIds={fearlessLockedIds}
+                        resolveChampion={resolveChampion}
+                    />
+                )}
+
                 {/* BANS + ACTION */}
                 <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-stretch">
                     {/* BLUE BANS PANEL */}
@@ -290,6 +299,7 @@ export default function DraftBoard({
                             previewChampion={redPreview}
                         />
                     </div>
+
                 </div>
             </div>
         </div>

@@ -1,8 +1,32 @@
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
+import {toast} from "sonner";
 
 type DraftTurn = "BLUE" | "RED";
 type DraftMode = "SINGLE" | "FEARLESS_SERIES";
+
+async function copyToClipboard(text: string) {
+    try {
+        await navigator.clipboard.writeText(text);
+        return true;
+    } catch {
+        // Fallback for older browsers / insecure contexts
+        try {
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.left = "-9999px";
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+}
 
 export default function CreateDraftPage() {
     const navigate = useNavigate();
@@ -17,6 +41,9 @@ export default function CreateDraftPage() {
     // ✅ Mode
     const [mode, setMode] = useState<DraftMode>("SINGLE");
     const [bestOf, setBestOf] = useState<3 | 5>(3);
+
+    // ✅ Copy link option (single link)
+    const [copyLinkOnCreate, setCopyLinkOnCreate] = useState(true);
 
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,13 +66,8 @@ export default function CreateDraftPage() {
 
             const API = import.meta.env.VITE_API_URL;
 
-            const url =
-                mode === "SINGLE"
-                    ? `${API}/draft`
-                    : `${API}/series`;
-
-            const payload =
-                mode === "SINGLE" ? basePayload : {...basePayload, bestOf};
+            const url = mode === "SINGLE" ? `${API}/draft` : `${API}/series`;
+            const payload = mode === "SINGLE" ? basePayload : {...basePayload, bestOf};
 
             const res = await fetch(url, {
                 method: "POST",
@@ -59,6 +81,19 @@ export default function CreateDraftPage() {
             }
 
             const draft = await res.json();
+
+            // ✅ Copy just the generic draft link (role can be chosen after opening)
+            if (copyLinkOnCreate) {
+                const link = `${window.location.origin}/draft/${draft.draftId}`;
+                const ok = await copyToClipboard(link);
+
+                if (ok) {
+                    toast.success("Draft link copied to clipboard", {duration: 2000});
+                } else {
+                    toast.error("Couldn't copy link. Please copy it manually.", {duration: 3000});
+                }
+            }
+
             navigate(`/draft/${draft.draftId}`);
         } catch (err) {
             setError("Something went wrong creating the draft.");
@@ -78,16 +113,12 @@ export default function CreateDraftPage() {
                 {/* Header */}
                 <div className="text-center space-y-1">
                     <h1 className="text-3xl font-bold text-white">Create Draft</h1>
-                    <p className="text-neutral-400 text-sm">
-                        Leave team names blank to use defaults
-                    </p>
+                    <p className="text-neutral-400 text-sm">Leave team names blank to use defaults</p>
                 </div>
 
                 {/* ✅ Mode */}
                 <div className="space-y-3">
-                    <label className="block text-sm font-medium text-neutral-300">
-                        Draft Mode
-                    </label>
+                    <label className="block text-sm font-medium text-neutral-300">Draft Mode</label>
 
                     <div className="grid grid-cols-2 gap-3">
                         <button
@@ -100,9 +131,7 @@ export default function CreateDraftPage() {
                             }`}
                         >
                             <div className="text-sm font-semibold text-white">Single Game</div>
-                            <div className="text-xs text-neutral-400 mt-1">
-                                Standard draft (no locks).
-                            </div>
+                            <div className="text-xs text-neutral-400 mt-1">Standard draft (no locks).</div>
                         </button>
 
                         <button
@@ -115,17 +144,13 @@ export default function CreateDraftPage() {
                             }`}
                         >
                             <div className="text-sm font-semibold text-white">Fearless</div>
-                            <div className="text-xs text-neutral-400 mt-1">
-                                Picks lock across games.
-                            </div>
+                            <div className="text-xs text-neutral-400 mt-1">Picks lock across games.</div>
                         </button>
                     </div>
 
                     {mode === "FEARLESS_SERIES" && (
                         <div className="flex items-center justify-between gap-3">
-                            <label className="text-sm font-medium text-neutral-300">
-                                Best of
-                            </label>
+                            <label className="text-sm font-medium text-neutral-300">Best of</label>
                             <select
                                 value={bestOf}
                                 onChange={(e) => setBestOf(Number(e.target.value) as 3 | 5)}
@@ -141,9 +166,7 @@ export default function CreateDraftPage() {
                 {/* Team Inputs */}
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-blue-400 mb-1">
-                            Blue Side Team
-                        </label>
+                        <label className="block text-sm font-medium text-blue-400 mb-1">Blue Side Team</label>
                         <input
                             value={blueTeamName}
                             onChange={(e) => setBlueTeamName(e.target.value)}
@@ -153,9 +176,7 @@ export default function CreateDraftPage() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-red-400 mb-1">
-                            Red Side Team
-                        </label>
+                        <label className="block text-sm font-medium text-red-400 mb-1">Red Side Team</label>
                         <input
                             value={redTeamName}
                             onChange={(e) => setRedTeamName(e.target.value)}
@@ -167,9 +188,7 @@ export default function CreateDraftPage() {
 
                 {/* First Pick */}
                 <div>
-                    <label className="block text-sm font-medium text-neutral-300 mb-1">
-                        First Pick
-                    </label>
+                    <label className="block text-sm font-medium text-neutral-300 mb-1">First Pick</label>
                     <select
                         value={firstPickTeam}
                         onChange={(e) => setFirstPickTeam(e.target.value as DraftTurn)}
@@ -179,6 +198,25 @@ export default function CreateDraftPage() {
                         <option value="RED">{redLabel}</option>
                     </select>
                 </div>
+
+                {/* ✅ Copy link checkbox */}
+                <label
+                    className="flex items-center justify-between gap-3 rounded-xl border border-neutral-800 bg-neutral-800/40 px-4 py-3">
+                    <div className="flex items-center gap-3">
+                        <input
+                            type="checkbox"
+                            className="h-4 w-4 accent-white"
+                            checked={copyLinkOnCreate}
+                            onChange={(e) => setCopyLinkOnCreate(e.target.checked)}
+                        />
+                        <div>
+                            <div className="text-sm font-medium text-white">Copy link after creating</div>
+                            <div className="text-xs text-neutral-400">
+                                Copies the draft URL so you can paste it to the other team.
+                            </div>
+                        </div>
+                    </div>
+                </label>
 
                 {/* Error */}
                 {error && (
@@ -209,8 +247,8 @@ export default function CreateDraftPage() {
 
                 {/* Hint */}
                 <div className="text-xs text-neutral-500 text-center">
-                    After creating, both teams must click <span
-                    className="text-neutral-300 font-semibold">Ready</span> to start.
+                    After creating, both teams must click{" "}
+                    <span className="text-neutral-300 font-semibold">Ready</span> to start.
                 </div>
             </div>
         </div>

@@ -12,7 +12,7 @@ export default function FearlessLocksRow({
 
     const MAX = 12; // keep it compact in the action panel
     const shown = cleaned.slice(0, MAX);
-
+  
     return (
         <div>
             <div className="m-1 flex flex-wrap gap-1 justify-center">
